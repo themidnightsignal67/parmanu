@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Remix Remix Remix Remix Remix Remix Remix ClearTrace — Authorized Email Footprint Investigation",
+  "description": "Professional cybersecurity SaaS interface for authorized email investigation and personal digital footprint analysis using locally installed OSINT CLI tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

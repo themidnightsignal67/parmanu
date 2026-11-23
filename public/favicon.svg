@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="pmBg" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1120"/>
+      <stop offset="55%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#090D16"/>
+    </linearGradient>
+    <radialGradient id="pmGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#818CF8" stop-opacity="0.32"/>
+      <stop offset="65%" stop-color="#4F46E5" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0B1120" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pmOrbitA" x1="10" y1="16" x2="54" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF9933"/>
+      <stop offset="50%" stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <linearGradient id="pmOrbitB" x1="54" y1="16" x2="10" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#pmBg)"/>
+  <circle cx="32" cy="32" r="24" fill="url(#pmGlow)"/>
+  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.25" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="21.5" stroke="rgba(148,163,184,0.22)" stroke-width="1" stroke-dasharray="2.5 3"/>
+  <ellipse cx="32" cy="32" rx="22" ry="9.5" transform="rotate(-34 32 32)" stroke="url(#pmOrbitA)" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="32" cy="32" rx="22" ry="9.5" transform="rotate(34 32 32)" stroke="url(#pmOrbitB)" stroke-width="2.3" stroke-opacity="0.92" stroke-linecap="round"/>
+  <ellipse cx="32" cy="32" rx="9" ry="22" stroke="rgba(226,232,240,0.34)" stroke-width="1.5"/>
+  <circle cx="15" cy="21" r="2.9" fill="#FF9933"/>
+  <circle cx="49" cy="43" r="2.9" fill="#10B981"/>
+  <circle cx="49" cy="21" r="2.5" fill="#38BDF8"/>
+  <circle cx="32" cy="32" r="8" fill="rgba(248,250,252,0.16)"/>
+  <circle cx="32" cy="32" r="5.8" fill="#F8FAFC"/>
+  <circle cx="32" cy="32" r="2.8" fill="#4F46E5"/>
+</svg>

@@ -1,0 +1,322 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated Brahmand analyst profile and real workspace credits.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "credits": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "displayName", "credits", "createdAt", "updatedAt"]
+    },
+    "InvestigationCase": {
+      "title": "InvestigationCase",
+      "description": "Persisted OSINT investigation record owned by an analyst and optionally shared with collaborators.",
+      "type": "object",
+      "properties": {
+        "scanId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerEmail": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "collaboratorEmails": {
+          "type": "array",
+          "description": "Bounded list of up to 10 verified collaborator emails."
+        },
+        "target": {
+          "type": "string",
+          "maxLength": 254
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["username", "email", "domain", "ip", "phone"]
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 254
+        },
+        "status": {
+          "type": "string",
+          "enum": ["queued", "running", "completed", "partial", "failed", "cancelled"]
+        },
+        "durationMs": {
+          "type": "number"
+        },
+        "createdAtIso": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "completedAtIso": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "selectedTools": {
+          "type": "array"
+        },
+        "summary": {
+          "type": "object"
+        },
+        "profilePhotos": {
+          "type": "array"
+        },
+        "breachedAccounts": {
+          "type": "array"
+        },
+        "geoMarkers": {
+          "type": "array"
+        },
+        "toolExecutions": {
+          "type": "array"
+        },
+        "results": {
+          "type": "array"
+        },
+        "aiSummary": {
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "scanId",
+        "ownerId",
+        "ownerEmail",
+        "collaboratorEmails",
+        "target",
+        "targetType",
+        "status",
+        "durationMs",
+        "createdAtIso",
+        "selectedTools",
+        "summary",
+        "profilePhotos",
+        "breachedAccounts",
+        "geoMarkers",
+        "toolExecutions",
+        "results",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MonitoringRule": {
+      "title": "MonitoringRule",
+      "description": "Authorized continuous OSINT monitoring alert configured by an analyst.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "target": {
+          "type": "string",
+          "maxLength": 254
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["username", "email", "domain", "ip", "phone"]
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["Realtime", "Daily", "Weekly"]
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "lastCheckedAt": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "lastScanId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "alertsCount": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "target",
+        "targetType",
+        "frequency",
+        "active",
+        "lastCheckedAt",
+        "alertsCount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CaseSnapshot": {
+      "title": "CaseSnapshot",
+      "description": "Exported PNG evidence snapshot tied to an investigation case.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "scanId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "target": {
+          "type": "string",
+          "maxLength": 254
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["username", "email", "domain", "ip", "phone"]
+        },
+        "capturedAt": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "dataUrl": {
+          "type": "string",
+          "maxLength": 450000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "scanId",
+        "target",
+        "targetType",
+        "capturedAt",
+        "dataUrl",
+        "createdAt"
+      ]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "description": "Authorized teammate entry in an analyst workspace.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "role": {
+          "type": "string",
+          "enum": ["Investigator", "Viewer"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Active", "Invited"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "email", "role", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private analyst profile with real credit balance."
+    },
+    "/investigations/{scanId}": {
+      "schema": { "$ref": "#/entities/InvestigationCase" },
+      "description": "OSINT investigation records owned by an analyst and optionally shared with up to 10 verified collaborators."
+    },
+    "/monitors/{ruleId}": {
+      "schema": { "$ref": "#/entities/MonitoringRule" },
+      "description": "Continuous monitoring alert rules owned by an analyst."
+    },
+    "/snapshots/{snapshotId}": {
+      "schema": { "$ref": "#/entities/CaseSnapshot" },
+      "description": "Exported PNG case snapshots owned by an analyst."
+    },
+    "/teamMembers/{memberId}": {
+      "schema": { "$ref": "#/entities/TeamMember" },
+      "description": "Workspace teammates invited by an analyst."
+    }
+  }
+}

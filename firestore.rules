@@ -1,0 +1,236 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(ownerId) {
+      return isVerifiedUser() && request.auth.uid == ownerId;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'credits', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'credits', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && data.uid == request.auth.uid
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 254
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 128
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 512))
+        && data.credits is number && data.credits >= 0 && data.credits <= 1000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidInvestigation(data, scanId) {
+      return data.keys().hasAll([
+          'scanId', 'ownerId', 'ownerEmail', 'collaboratorEmails', 'target', 'targetType',
+          'status', 'durationMs', 'createdAtIso', 'selectedTools', 'summary',
+          'profilePhotos', 'breachedAccounts', 'geoMarkers', 'toolExecutions', 'results',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'scanId', 'ownerId', 'ownerEmail', 'collaboratorEmails', 'target', 'targetType',
+          'email', 'status', 'durationMs', 'createdAtIso', 'completedAtIso',
+          'selectedTools', 'summary', 'profilePhotos', 'breachedAccounts',
+          'geoMarkers', 'toolExecutions', 'results', 'aiSummary', 'createdAt', 'updatedAt'
+        ])
+        && data.scanId is string && data.scanId == scanId
+        && data.ownerId is string && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerEmail is string && data.ownerEmail.size() >= 3 && data.ownerEmail.size() <= 254
+        && data.collaboratorEmails is list && data.collaboratorEmails.size() <= 10
+        && (data.collaboratorEmails.size() == 0 || (data.collaboratorEmails[0] is string && data.collaboratorEmails[0].size() <= 254))
+        && data.target is string && data.target.size() >= 2 && data.target.size() <= 254
+        && data.targetType in ['username', 'email', 'domain', 'ip', 'phone']
+        && (!('email' in data) || (data.email is string && data.email.size() <= 254))
+        && data.status in ['queued', 'running', 'completed', 'partial', 'failed', 'cancelled']
+        && data.durationMs is number && data.durationMs >= 0
+        && data.createdAtIso is string && data.createdAtIso.size() <= 64
+        && (!('completedAtIso' in data) || (data.completedAtIso is string && data.completedAtIso.size() <= 64))
+        && data.selectedTools is list && data.selectedTools.size() >= 1 && data.selectedTools.size() <= 8
+        && data.selectedTools[0] is string && data.selectedTools[0].size() <= 32
+        && data.summary is map
+        && data.profilePhotos is list && data.profilePhotos.size() <= 50
+        && data.breachedAccounts is list && data.breachedAccounts.size() <= 100
+        && data.geoMarkers is list && data.geoMarkers.size() <= 50
+        && data.toolExecutions is list && data.toolExecutions.size() <= 10
+        && data.results is list && data.results.size() <= 100
+        && (!('aiSummary' in data) || data.aiSummary is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMonitoringRule(data, ruleId) {
+      return data.keys().hasAll([
+          'id', 'ownerId', 'target', 'targetType', 'frequency', 'active',
+          'lastCheckedAt', 'alertsCount', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'ownerId', 'target', 'targetType', 'frequency', 'active',
+          'lastCheckedAt', 'lastScanId', 'alertsCount', 'createdAt', 'updatedAt'
+        ])
+        && data.id is string && data.id == ruleId
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && data.target is string && data.target.size() >= 2 && data.target.size() <= 254
+        && data.targetType in ['username', 'email', 'domain', 'ip', 'phone']
+        && data.frequency in ['Realtime', 'Daily', 'Weekly']
+        && data.active is bool
+        && data.lastCheckedAt is string && data.lastCheckedAt.size() <= 64
+        && (!('lastScanId' in data) || (data.lastScanId is string && data.lastScanId.size() <= 128))
+        && data.alertsCount is number && data.alertsCount >= 0
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSnapshot(data, snapshotId) {
+      return data.keys().hasAll([
+          'id', 'ownerId', 'scanId', 'target', 'targetType', 'capturedAt', 'dataUrl', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'ownerId', 'scanId', 'target', 'targetType', 'capturedAt', 'dataUrl', 'note', 'createdAt'
+        ])
+        && data.id is string && data.id == snapshotId
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && data.scanId is string && isValidId(data.scanId)
+        && data.target is string && data.target.size() >= 2 && data.target.size() <= 254
+        && data.targetType in ['username', 'email', 'domain', 'ip', 'phone']
+        && data.capturedAt is string && data.capturedAt.size() <= 64
+        && data.dataUrl is string && data.dataUrl.size() >= 10 && data.dataUrl.size() <= 450000
+        && (!('note' in data) || (data.note is string && data.note.size() <= 500))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidTeamMember(data, memberId) {
+      return data.keys().hasAll(['id', 'ownerId', 'email', 'role', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'email', 'role', 'status', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id == memberId
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 254
+        && data.role in ['Investigator', 'Viewer']
+        && data.status in ['Active', 'Invited']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().credits == 50
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'credits', 'updatedAt']);
+    }
+
+    match /investigations/{scanId} {
+      allow get: if isValidId(scanId)
+        && isVerifiedUser()
+        && (existing().ownerId == request.auth.uid
+          || ('email' in request.auth.token && request.auth.token.email.lower() in existing().collaboratorEmails));
+      allow list: if isVerifiedUser()
+        && (resource.data.ownerId == request.auth.uid
+          || ('email' in request.auth.token && request.auth.token.email.lower() in resource.data.collaboratorEmails));
+      allow create: if isValidId(scanId)
+        && isVerifiedUser()
+        && incoming().ownerId == request.auth.uid
+        && isValidInvestigation(incoming(), scanId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(scanId)
+        && isVerifiedUser()
+        && existing().ownerId == request.auth.uid
+        && isValidInvestigation(incoming(), scanId)
+        && incoming().ownerId == existing().ownerId
+        && incoming().scanId == existing().scanId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['aiSummary', 'updatedAt'])
+          || incoming().diff(existing()).affectedKeys().hasOnly(['collaboratorEmails', 'updatedAt'])
+          || incoming().diff(existing()).affectedKeys().hasOnly([
+            'status', 'durationMs', 'completedAtIso', 'summary', 'profilePhotos',
+            'breachedAccounts', 'geoMarkers', 'toolExecutions', 'results', 'aiSummary', 'updatedAt'
+          ])
+        );
+      allow delete: if isValidId(scanId) && isOwner(existing().ownerId);
+    }
+
+    match /monitors/{ruleId} {
+      allow get: if isValidId(ruleId) && isOwner(existing().ownerId);
+      allow list: if isVerifiedUser() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(ruleId)
+        && isVerifiedUser()
+        && isValidMonitoringRule(incoming(), ruleId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(ruleId)
+        && isOwner(existing().ownerId)
+        && isValidMonitoringRule(incoming(), ruleId)
+        && incoming().id == existing().id
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['active', 'updatedAt'])
+          || incoming().diff(existing()).affectedKeys().hasOnly(['lastCheckedAt', 'lastScanId', 'alertsCount', 'updatedAt'])
+        );
+      allow delete: if isValidId(ruleId) && isOwner(existing().ownerId);
+    }
+
+    match /snapshots/{snapshotId} {
+      allow get: if isValidId(snapshotId) && isOwner(existing().ownerId);
+      allow list: if isVerifiedUser() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(snapshotId)
+        && isVerifiedUser()
+        && isValidSnapshot(incoming(), snapshotId)
+        && incoming().createdAt == request.time;
+      allow delete: if isValidId(snapshotId) && isOwner(existing().ownerId);
+    }
+
+    match /teamMembers/{memberId} {
+      allow get: if isValidId(memberId) && isOwner(existing().ownerId);
+      allow list: if isVerifiedUser() && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(memberId)
+        && isVerifiedUser()
+        && isValidTeamMember(incoming(), memberId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(memberId)
+        && isOwner(existing().ownerId)
+        && isValidTeamMember(incoming(), memberId)
+        && incoming().id == existing().id
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['role', 'status', 'updatedAt']);
+      allow delete: if isValidId(memberId) && isOwner(existing().ownerId);
+    }
+  }
+}
