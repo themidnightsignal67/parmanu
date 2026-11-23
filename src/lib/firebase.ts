@@ -6,18 +6,46 @@ import {
   signOut,
 } from 'firebase/auth';
 import { doc, getDocFromServer, getFirestore } from 'firebase/firestore';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp({
+  apiKey: firebaseConfig.apiKey,
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  messagingSenderId: firebaseConfig.messagingSenderId,
+  appId: firebaseConfig.appId,
+  measurementId: firebaseConfig.measurementId || undefined,
+});
 
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Use named DB if provided and not the default; otherwise standard default DB
+const dbId =
+  firebaseConfig.firestoreDatabaseId &&
+  firebaseConfig.firestoreDatabaseId !== '(default)'
+    ? firebaseConfig.firestoreDatabaseId
+    : undefined;
+
+export const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
 export const auth = getAuth(app);
+
+// Analytics only in browser + when supported (SSR-safe)
+if (typeof window !== 'undefined') {
+  void isSupported()
+    .then((ok) => {
+      if (ok) getAnalytics(app);
+    })
+    .catch(() => {});
+}
 
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('the client is offline')
+    ) {
       console.error('Please check your Firebase configuration.');
     }
   }
