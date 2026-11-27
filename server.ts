@@ -910,8 +910,8 @@ app.post(
     try {
       pruneExpiredPdfExports();
       const body = req.body || {};
-      const body.base64 === 'string' ? body.base64.trim() : '';
-      const rawFilename =
+const rawBase64 = typeof body.base64 === 'string' ? body.base64.trim() : '';
+const rawFilename =
         typeof body.filename === 'string' ? body.filename.trim() : 'parmanu-dossier.pdf';
 
       if (!rawBase64) {
