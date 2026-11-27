@@ -3,6 +3,7 @@ dotenv.config({ override: true });
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import express from 'express';
 import app, { PORT, isProduction } from './server/expressApp.ts';
 
 const __filename = fileURLToPath(import.meta.url);
